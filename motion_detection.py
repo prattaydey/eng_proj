@@ -29,7 +29,7 @@ while True:
     
     frame_count += 1
     print(
-    if frame_count >= 100:  # keep for 10 seconds (adjust if needed)
+    if frame_count >= 100:  # keep for XXX seconds (adjust if needed)
         break
 
     # Convert to grayscale and blur to reduce noise
