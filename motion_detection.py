@@ -14,7 +14,7 @@ os.makedirs("screenshots", exist_ok=True)
 
 # Initialize the Raspberry Pi camera
 picam2 = Picamera2()
-picam2.configure(picam2.create_still_configuration())
+picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
 picam2.start()
 
 last_frame = None
@@ -27,22 +27,22 @@ while True:
     frame = picam2.capture_array()
     frame_count += 1
     
-    if screenshot_count >= 5:  # Optional stopping condition, adjust if needed
+    if screenshot_count >= 100:  # Optional stopping condition, adjust if needed
         break
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    gray = cv2.GaussianBlur(gray, (21, 21), 0)
+    gray = cv2.GaussianBlur(gray, (31, 31), 0)
 
     if last_frame is None:
         last_frame = gray
         continue
 
     frame_diff = cv2.absdiff(last_frame, gray)
-    _, threshold = cv2.threshold(frame_diff, 25, 255, cv2.THRESH_BINARY)
+    _, threshold = cv2.threshold(frame_diff, 35, 255, cv2.THRESH_BINARY)
 
     motion_pixels = cv2.countNonZero(threshold)
 
-    if motion_pixels > 1000:  # Adjust the threshold based on your needs
+    if motion_pixels > 5000:  # Adjust the threshold based on your needs
         print("Motion detected!")
         detected_motion = True
         led.on()  # Turn on the LED when motion is detected
@@ -60,13 +60,13 @@ while True:
     prev_detected_motion = detected_motion
     last_frame = gray
 
-    # Commented out because we're running headlessly (no display)
-    # resized_frame = cv2.resize(frame, (320, 240))
-    # cv2.imshow('frame', resized_frame)
+    # commented out because we're running headlessly (no display)
+    #resized_frame = cv2.resize(frame, (640, 480))
+    #cv2.imshow('frame', resized_frame)
 
     # Commented out to avoid needing user input in a headless environment
-    # if cv2.waitKey(1) & 0xFF == ord('q'):
-    #     break
+    #if cv2.waitKey(1) & 0xFF == ord('q'):
+        #break
 
     time.sleep(1)  # Add a small delay to reduce CPU usage
 
@@ -75,4 +75,3 @@ led.off()
 picam2.stop()
 
 # No need to use cv2.destroyAllWindows() since we don't have a GUI
-
